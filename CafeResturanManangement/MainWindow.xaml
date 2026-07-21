@@ -1,12 +1,267 @@
 ﻿<Window x:Class="CafeResturanManangement.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:CafeResturanManangement"
-        mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Title="سیستم مدیریت کافه رستوران و سفارش‌گیر دیجیتال"
+        Height="760" Width="1180"
+        WindowStartupLocation="CenterScreen"
+        FlowDirection="RightToLeft"
+        FontFamily="Segoe UI, Tahoma"
+        Background="{StaticResource BackgroundBrush}">
 
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Background="{StaticResource PrimaryBrush}" CornerRadius="8" Padding="16,10" Margin="0,0,0,8">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="☕ سیستم مدیریت کافه رستوران و سفارش‌گیر دیجیتال"
+                           Foreground="White" FontSize="20" FontWeight="Bold" VerticalAlignment="Center" Margin="0"/>
+                <TextBlock x:Name="ClockText" Grid.Column="1" Foreground="White" FontSize="14"
+                           VerticalAlignment="Center" Margin="0"/>
+            </Grid>
+        </Border>
+
+        <TabControl Grid.Row="1" FontSize="14" FontWeight="Bold" Background="Transparent" BorderThickness="0">
+
+            <TabItem Header="🍽️ مدیریت منو">
+                <Grid Margin="8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2.2*"/>
+                        <ColumnDefinition Width="1*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <DockPanel Grid.Column="0" Margin="0,0,8,0">
+                        <DockPanel DockPanel.Dock="Top" Margin="0,0,0,6">
+                            <TextBlock Text="جستجو:" VerticalAlignment="Center" FontWeight="Normal"/>
+                            <TextBox x:Name="SearchMenuBox" Width="220" HorizontalAlignment="Left"
+                                     TextChanged="SearchMenuBox_TextChanged"/>
+                        </DockPanel>
+                        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,6,0,0">
+                            <Button Content="💾 ذخیره تغییرات ویرایش‌شده" Click="SaveMenuChangesButton_Click"/>
+                            <Button Content="🗑 حذف آیتم انتخاب‌شده" Style="{StaticResource DangerButton}" Click="DeleteMenuItemButton_Click"/>
+                        </StackPanel>
+                        <DataGrid x:Name="MenuDataGrid" CellEditEnding="MenuDataGrid_CellEditEnding">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="شناسه" Binding="{Binding Id}" IsReadOnly="True" Width="55"/>
+                                <DataGridTextColumn Header="نوع" Binding="{Binding Type}" IsReadOnly="True" Width="70"/>
+                                <DataGridTextColumn Header="نام" Binding="{Binding Name, Mode=TwoWay}" Width="140"/>
+                                <DataGridTextColumn Header="قیمت پایه" Binding="{Binding BasePrice, Mode=TwoWay, StringFormat={}{0:N0}}" Width="90"/>
+                                <DataGridTextColumn Header="قیمت نهایی" Binding="{Binding FinalPrice, StringFormat={}{0:N0}}" IsReadOnly="True" Width="90"/>
+                                <DataGridTextColumn Header="موجودی" Binding="{Binding StockQuantity, Mode=TwoWay}" Width="70"/>
+                                <DataGridTextColumn Header="دسته" Binding="{Binding Category}" IsReadOnly="True" Width="90"/>
+                                <DataGridTextColumn Header="جزئیات" Binding="{Binding Details}" IsReadOnly="True" Width="*"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </DockPanel>
+
+                    <GroupBox Grid.Column="1" Header="➕ افزودن آیتم جدید به منو" VerticalAlignment="Top">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <RadioButton x:Name="TypeFoodRadio" Content="غذا" IsChecked="True" Margin="4" GroupName="ItemType" Checked="TypeFoodRadio_Checked"/>
+                                <RadioButton x:Name="TypeDrinkRadio" Content="نوشیدنی" Margin="12,4,4,4" GroupName="ItemType" Checked="TypeDrinkRadio_Checked"/>
+                            </StackPanel>
+
+                            <TextBlock Text="نام آیتم:" FontWeight="Normal"/>
+                            <TextBox x:Name="NewItemNameBox"/>
+
+                            <TextBlock Text="قیمت پایه (تومان):" FontWeight="Normal"/>
+                            <TextBox x:Name="NewItemPriceBox"/>
+
+                            <TextBlock Text="موجودی اولیه:" FontWeight="Normal"/>
+                            <TextBox x:Name="NewItemStockBox"/>
+
+                            <TextBlock Text="دسته‌بندی:" FontWeight="Normal"/>
+                            <TextBox x:Name="NewItemCategoryBox"/>
+
+                            <StackPanel x:Name="FoodFieldsPanel">
+                                <TextBlock Text="زمان لازم برای پخت (دقیقه):" FontWeight="Normal"/>
+                                <TextBox x:Name="CookingTimeBox"/>
+                            </StackPanel>
+
+                            <StackPanel x:Name="DrinkFieldsPanel" Visibility="Collapsed">
+                                <TextBlock Text="حجم نوشیدنی (میلی‌لیتر):" FontWeight="Normal"/>
+                                <TextBox x:Name="VolumeBox"/>
+                                <CheckBox x:Name="ColdCheck" Content="نوشیدنی سرد است" Margin="4,8"/>
+                            </StackPanel>
+
+                            <Button Content="افزودن به منو" Style="{StaticResource AccentButton}" Margin="4,14,4,4"
+                                    Click="AddMenuItemButton_Click"/>
+                        </StackPanel>
+                    </GroupBox>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="🧾 ثبت سفارش">
+                <Grid Margin="8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1.3*"/>
+                        <ColumnDefinition Width="1*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <DockPanel Grid.Column="0" Margin="0,0,8,0">
+                        <DockPanel DockPanel.Dock="Top" Margin="0,0,0,6">
+                            <TextBlock Text="جستجو در منو:" VerticalAlignment="Center" FontWeight="Normal"/>
+                            <TextBox x:Name="OrderSearchBox" Width="220" HorizontalAlignment="Left"
+                                     TextChanged="OrderSearchBox_TextChanged"/>
+                        </DockPanel>
+                        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="0,8,0,0">
+                            <TextBlock Text="تعداد:" VerticalAlignment="Center" FontWeight="Normal"/>
+                            <TextBox x:Name="QuantityBox" Width="60" Text="1"/>
+                            <Button Content="➕ افزودن به سبد" Click="AddToCartButton_Click"/>
+                        </StackPanel>
+                        <DataGrid x:Name="AvailableItemsGrid" IsReadOnly="True">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="نوع" Binding="{Binding Type}" Width="60"/>
+                                <DataGridTextColumn Header="نام" Binding="{Binding Name}" Width="140"/>
+                                <DataGridTextColumn Header="قیمت" Binding="{Binding FinalPrice, StringFormat={}{0:N0}}" Width="90"/>
+                                <DataGridTextColumn Header="موجودی" Binding="{Binding StockQuantity}" Width="70"/>
+                                <DataGridTextColumn Header="جزئیات" Binding="{Binding Details}" Width="*"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </DockPanel>
+
+                    <DockPanel Grid.Column="1">
+                        <TextBlock DockPanel.Dock="Top" Text="سبد سفارش جاری:" FontWeight="Bold" FontSize="15"/>
+
+                        <Button DockPanel.Dock="Top" Content="❌ حذف آیتم انتخاب‌شده از سبد"
+                                Style="{StaticResource DangerButton}" HorizontalAlignment="Left"
+                                Click="RemoveFromCartButton_Click"/>
+
+                        <DataGrid x:Name="CartGrid" DockPanel.Dock="Top" Height="180" IsReadOnly="True">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="نام" Binding="{Binding ItemName}" Width="130"/>
+                                <DataGridTextColumn Header="تعداد" Binding="{Binding Quantity}" Width="55"/>
+                                <DataGridTextColumn Header="قیمت واحد" Binding="{Binding UnitPrice, StringFormat={}{0:N0}}" Width="90"/>
+                                <DataGridTextColumn Header="جمع" Binding="{Binding LineTotal, StringFormat={}{0:N0}}" Width="*"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+
+                        <GroupBox DockPanel.Dock="Top" Header="اطلاعات سفارش" Margin="0,10,0,0">
+                            <StackPanel>
+                                <TextBlock Text="نام مشتری (اختیاری):" FontWeight="Normal"/>
+                                <TextBox x:Name="CustomerNameBox"/>
+
+                                <TextBlock Text="شماره میز (اختیاری):" FontWeight="Normal"/>
+                                <TextBox x:Name="TableNumberBox"/>
+
+                                <CheckBox x:Name="TakeawayCheck" Content="سفارش بیرون‌بر (هزینه بسته‌بندی اضافه می‌شود)"
+                                          Margin="4,10" Checked="TakeawayCheck_Changed" Unchecked="TakeawayCheck_Changed"/>
+
+                                <TextBlock Text="کد تخفیف (اختیاری):" FontWeight="Normal"/>
+                                <TextBox x:Name="DiscountCodeBox"/>
+                            </StackPanel>
+                        </GroupBox>
+
+                        <Border DockPanel.Dock="Top" Background="{StaticResource PanelBrush}" BorderBrush="{StaticResource BorderBrush2}"
+                                BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,10,0,0">
+                            <StackPanel>
+                                <TextBlock x:Name="SubtotalText" Text="جمع اقلام: 0 تومان" FontWeight="Normal"/>
+                                <TextBlock x:Name="VatText" Text="مالیات ارزش افزوده (۹٪): 0 تومان" FontWeight="Normal"/>
+                                <TextBlock x:Name="PackagingText" Text="هزینه بسته‌بندی: 0 تومان" FontWeight="Normal"/>
+                                <TextBlock x:Name="TotalPreviewText" Text="مبلغ قابل پرداخت (تخمینی): 0 تومان"
+                                           FontWeight="Bold" FontSize="15" Foreground="{StaticResource PrimaryDarkBrush}"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Button DockPanel.Dock="Top" Content="✅ ثبت سفارش و صدور فاکتور" Style="{StaticResource AccentButton}"
+                                FontSize="15" Margin="0,12,0,0" Padding="12,10"
+                                Click="PlaceOrderButton_Click"/>
+                    </DockPanel>
+                </Grid>
+            </TabItem>
+            <TabItem Header="👨‍🍳 صف آشپزخانه">
+                <DockPanel Margin="8">
+                    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,10">
+                        <TextBlock Text="شماره فاکتور برای تحویل:" VerticalAlignment="Center" FontWeight="Normal"/>
+                        <TextBox x:Name="DeliverInvoiceBox" Width="100"/>
+                        <Button Content="✔ ثبت به‌عنوان تحویل‌شده" Style="{StaticResource AccentButton}" Click="MarkDeliveredButton_Click"/>
+                        <Button Content="🔄 بروزرسانی صف" Click="RefreshQueueButton_Click"/>
+                    </StackPanel>
+
+                    <DataGrid x:Name="QueueGrid" IsReadOnly="True" SelectionChanged="QueueGrid_SelectionChanged">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="شماره فاکتور" Binding="{Binding InvoiceNumber}" Width="100"/>
+                            <DataGridTextColumn Header="زمان ثبت" Binding="{Binding Time}" Width="70"/>
+                            <DataGridTextColumn Header="مشتری/میز" Binding="{Binding CustomerOrTable}" Width="110"/>
+                            <DataGridTextColumn Header="نوع" Binding="{Binding TakeawayText}" Width="70"/>
+                            <DataGridTextColumn Header="اقلام سفارش" Binding="{Binding ItemsSummary}" Width="*"/>
+                            <DataGridTextColumn Header="مبلغ نهایی" Binding="{Binding GrandTotal, StringFormat={}{0:N0}}" Width="100"/>
+                            <DataGridTextColumn Header="زمان سپری‌شده" Binding="{Binding Elapsed}" Width="110"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </DockPanel>
+            </TabItem>
+            <TabItem Header="📊 گزارشات">
+                <Grid Margin="8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1.6*"/>
+                        <ColumnDefinition Width="1*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <DockPanel Grid.Column="0" Margin="0,0,8,0">
+                        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,10">
+                            <Border Background="{StaticResource PanelBrush}" BorderBrush="{StaticResource BorderBrush2}" BorderThickness="1" CornerRadius="6" Padding="12" Margin="0,0,8,0">
+                                <TextBlock x:Name="TodayRevenueText" Text="درآمد امروز: 0 تومان" FontWeight="Bold"/>
+                            </Border>
+                            <Border Background="{StaticResource PanelBrush}" BorderBrush="{StaticResource BorderBrush2}" BorderThickness="1" CornerRadius="6" Padding="12" Margin="0,0,8,0">
+                                <TextBlock x:Name="TotalRevenueText" Text="درآمد کل: 0 تومان" FontWeight="Bold"/>
+                            </Border>
+                            <Border Background="{StaticResource PanelBrush}" BorderBrush="{StaticResource BorderBrush2}" BorderThickness="1" CornerRadius="6" Padding="12">
+                                <TextBlock x:Name="DeliveredCountText" Text="تعداد فاکتورهای تحویل‌شده: 0" FontWeight="Bold"/>
+                            </Border>
+                            <Button Content="🔄 بروزرسانی گزارش" Style="{StaticResource AccentButton}" Margin="16,0,0,0" Click="RefreshReportsButton_Click"/>
+                        </StackPanel>
+
+                        <TextBlock DockPanel.Dock="Top" Text="تاریخچه فاکتورها:" FontWeight="Bold" Margin="4,0,4,4"/>
+                        <DataGrid x:Name="HistoryGrid" IsReadOnly="True">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="شماره فاکتور" Binding="{Binding InvoiceNumber}" Width="90"/>
+                                <DataGridTextColumn Header="تاریخ و ساعت" Binding="{Binding DateTimeText}" Width="130"/>
+                                <DataGridTextColumn Header="مشتری/میز" Binding="{Binding CustomerOrTable}" Width="100"/>
+                                <DataGridTextColumn Header="تعداد اقلام" Binding="{Binding ItemCount}" Width="80"/>
+                                <DataGridTextColumn Header="کد تخفیف" Binding="{Binding DiscountText}" Width="110"/>
+                                <DataGridTextColumn Header="مبلغ نهایی" Binding="{Binding GrandTotal, StringFormat={}{0:N0}}" Width="90"/>
+                                <DataGridTextColumn Header="وضعیت" Binding="{Binding Status}" Width="*"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </DockPanel>
+
+                    <DockPanel Grid.Column="1">
+                        <TextBlock DockPanel.Dock="Top" Text="پرفروش‌ترین آیتم‌ها:" FontWeight="Bold" Margin="4,0,4,4"/>
+                        <DataGrid x:Name="BestSellersGrid" DockPanel.Dock="Top" Height="150" IsReadOnly="True" Margin="0,0,0,12">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="نام آیتم" Binding="{Binding Name}" Width="*"/>
+                                <DataGridTextColumn Header="تعداد فروش" Binding="{Binding Count}" Width="90"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+
+                        <GroupBox DockPanel.Dock="Top" Header="مدیریت کدهای تخفیف" Margin="0,0,0,10">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBox x:Name="NewCodeBox" Width="120" Tag="کد جدید"/>
+                                    <TextBox x:Name="NewPercentBox" Width="60" Tag="درصد"/>
+                                    <Button Content="➕ افزودن کد" Click="AddDiscountButton_Click"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </GroupBox>
+
+                        <DataGrid x:Name="DiscountGrid" IsReadOnly="True">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="کد" Binding="{Binding Code}" Width="100"/>
+                                <DataGridTextColumn Header="درصد" Binding="{Binding PercentOff}" Width="60"/>
+                                <DataGridTextColumn Header="مصرف شده" Binding="{Binding IsUsed}" Width="*"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </DockPanel>
+                </Grid>
+            </TabItem>
+
+        </TabControl>
     </Grid>
 </Window>
